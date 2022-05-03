@@ -68,6 +68,23 @@ def test_turn_x3(cube):
     cube.turn_x_3_neg(3)
     print(cube.up)
 
+def test_right_turn(cube):
+    cube.right_turn()
+    print(cube.up)
+    cube.right_turn(n=5)
+    print(cube.up)
+    cube.right_turn(x=False)
+    print(cube.up)
+    cube.right_turn(n=5)
+    print(cube.up)
+
+
+def test_white_cross_yellow_center(cube : Cube):
+    cube.turn_z_3_pos()
+    cube.white_cross_yellow_center()
+    print(cube.up)
+
+
 
 def test():
     cube = Cube.Cube()
@@ -84,7 +101,11 @@ def test():
 
     # test_turn_x2(cube)
 
-    test_turn_x3(cube)
+    #test_turn_x3(cube)
+
+    #test_right_turn(cube)
+
+    test_white_cross_yellow_center(cube)
 
     # self.front = [[37, 38, 39],
     #               [40, 41, 42],

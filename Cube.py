@@ -15,6 +15,96 @@ class Cube:
     def __init__(self):
         self.ideal_cube()
 
+    def solve_cube(self):
+        white_on_up = 0
+        white_num = [29, 31, 33, 35]
+        compare = Cube()
+
+        # white cross yellow center
+        if self.up == compare.up and self.down == compare.down and self.front == compare.front and \
+                self.back == compare.back and \
+                self.left == compare.left and self.right == compare.right:
+            return
+        elif self.down == compare.down:
+            # solve if down already solved
+            pass
+        else:
+            self.white_cross_yellow_center()
+
+    # Makes white cross on up plane
+    def white_cross_yellow_center(self):
+        down_elem_indexes = [[0, 1, self.turn_x_3_pos],
+                             [1, 2, self.turn_y_1_pos],
+                             [2, 1, self.turn_x_1_pos],
+                             [1, 0, self.turn_y_3_pos]
+                             ]
+        up_elem_indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
+
+        def checker(index_1, index_2):
+            check = False
+            if self.up[index_1][index_2] in white:
+                check = True
+            return check
+
+        def turn_up_till_right_clear():
+            while self.up[1][2] in white:
+                self.turn_z_1_neg()
+
+        def turn_up_till_left_clear():
+            while self.up[1][0] in white:
+                self.turn_z_1_neg()
+
+        white = [29, 31, 33, 35]
+        white_num = [29, 31, 33, 35]
+
+        count = 0
+
+        # check if all elements already on "up"
+        for i, j in up_elem_indexes:
+            if self.up[i][j] in white:
+                count += 1
+        if count == 4:
+            return
+
+        count = 0
+
+        # put all white shapes from "down" to the "up"
+        for i, j, command in down_elem_indexes:
+            if self.down[i][j] in white_num:
+                while checker(up_elem_indexes[count][0], up_elem_indexes[count][1]):
+                    self.turn_z_1_neg()
+                white_num.pop(white_num.index(self.down[i][j]))
+                command(2)
+            count += 1
+
+        # put all white shapes from "front" to the "up"
+        if white_num:
+            for i in range(4):
+                if self.front[1][2] in white_num:
+                    turn_up_till_right_clear()
+                    white_num.pop(white_num.index(self.front[1][2]))
+                    self.turn_y_3_pos()
+                if self.front[1][0] in white_num:
+                    turn_up_till_left_clear()
+                    white_num.pop(white_num.index(self.front[1][0]))
+                    self.turn_y_1_pos()
+
+                self.turn_z_2_pos()
+
+            for i in range(4):
+                self.turn_x_1_pos()
+                if self.front[1][2] in white_num:
+                    turn_up_till_right_clear()
+                    white_num.pop(white_num.index(self.front[1][2]))
+                    self.turn_y_3_pos()
+                if self.front[1][0] in white_num:
+                    turn_up_till_left_clear()
+                    white_num.pop(white_num.index(self.front[1][0]))
+                    self.turn_y_1_pos()
+                self.turn_x_1_neg()
+                self.turn_z_1_neg()
+                self.turn_z_3_neg()
+
     # reset cube to solved one
     def ideal_cube(self):
         self.one_shape.clear()
@@ -516,16 +606,120 @@ class Cube:
             self.back[2][2] = up[2][2]
 
             # back -> down
-            self.down[2][2] = back[0][2]
-            self.down[1][2] = back[1][2]
-            self.down[0][2] = back[2][2]
+            self.down[2][0] = back[0][2]
+            self.down[1][0] = back[1][2]
+            self.down[0][0] = back[2][2]
 
             # down -> front
-            self.front[0][2] = down[2][2]
-            self.front[1][2] = down[1][2]
-            self.front[2][2] = down[0][2]
+            self.front[0][2] = down[2][0]
+            self.front[1][2] = down[1][0]
+            self.front[2][2] = down[0][0]
 
     # turn y_3 clockwise n times
     def turn_y_3_neg(self, n=1):
         for i in range(n):
             self.turn_y_3_pos()
+
+    def right_turn(self, x=True, y=True, z=True, n=1):
+        """
+        Над каким ребром будет совершаться правый поворот
+        :param x: первая ось (True - если вдоль оси ox False - против)
+        :param y: Вторая ось (True - если вдоль оси oy False - против)
+        :param z: ориентация кубика (True - если вдоль оси oz False - против)
+        :param n: number of right turns
+        """
+        for i in range(n):
+            if z:
+                if (not x) & y:
+                    self.turn_y_1_neg()
+                    self.turn_z_1_neg()
+                    self.turn_y_1_pos()
+                    self.turn_z_1_pos()
+                elif (not x) & (not y):
+                    self.turn_x_3_neg()
+                    self.turn_z_1_neg()
+                    self.turn_x_3_pos()
+                    self.turn_z_1_pos()
+                elif x & (not y):
+                    self.turn_y_3_neg()
+                    self.turn_z_1_neg()
+                    self.turn_y_3_pos()
+                    self.turn_z_1_pos()
+                elif x & y:
+                    self.turn_x_1_neg()
+                    self.turn_z_1_neg()
+                    self.turn_x_1_pos()
+                    self.turn_z_1_pos()
+            else:
+                if x & (not y):
+                    self.turn_x_1_neg()
+                    self.turn_z_3_neg()
+                    self.turn_x_1_pos()
+                    self.turn_z_3_pos()
+                elif x & y:
+                    self.turn_y_1_neg()
+                    self.turn_z_3_neg()
+                    self.turn_y_1_pos()
+                    self.turn_z_3_pos()
+                elif (not x) & y:
+                    self.turn_x_3_neg()
+                    self.turn_z_3_neg()
+                    self.turn_x_3_pos()
+                    self.turn_z_3_pos()
+                elif (not x) & (not y):
+                    self.turn_y_3_neg()
+                    self.turn_z_3_neg()
+                    self.turn_y_3_pos()
+                    self.turn_z_3_pos()
+
+    def left_turn(self, x=True, y=True, z=True, n=1):
+        """
+                Над каким ребром будет совершаться правый поворот
+                :param x: первая ось (True - если вдоль оси ox False - против)
+                :param y: Вторая ось (True - если вдоль оси oy False - против)
+                :param z: ориентация кубика (True - если вдоль оси oz False - против)
+                :param n: number of right turns
+                """
+        for i in range(n):
+            if z:
+                if x & (not y):
+                    self.turn_x_1_pos()
+                    self.turn_z_1_pos()
+                    self.turn_x_1_neg()
+                    self.turn_z_1_neg()
+                elif x & y:
+                    self.turn_y_1_pos()
+                    self.turn_z_1_pos()
+                    self.turn_y_1_neg()
+                    self.turn_z_1_neg()
+                elif (not x) & y:
+                    self.turn_x_3_pos()
+                    self.turn_z_1_pos()
+                    self.turn_x_3_neg()
+                    self.turn_z_1_neg()
+                elif (not x) & (not y):
+                    self.turn_y_3_pos()
+                    self.turn_z_1_pos()
+                    self.turn_y_3_neg()
+                    self.turn_z_1_neg()
+            else:
+                if (not x) & y:
+                    self.turn_y_1_pos()
+                    self.turn_z_3_pos()
+                    self.turn_y_1_neg()
+                    self.turn_z_1_neg()
+                elif (not x) & (not y):
+                    self.turn_x_3_pos()
+                    self.turn_z_3_pos()
+                    self.turn_x_3_neg()
+                    self.turn_z_3_neg()
+                elif x & (not y):
+                    self.turn_y_3_pos()
+                    self.turn_z_3_pos()
+                    self.turn_y_3_neg()
+                    self.turn_z_3_neg()
+                elif x & y:
+                    self.turn_x_1_pos()
+                    self.turn_z_3_pos()
+                    self.turn_x_1_neg()
+                    self.turn_z_3_neg()
