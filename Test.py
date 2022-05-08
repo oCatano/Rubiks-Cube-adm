@@ -176,7 +176,7 @@ def test_white_cross(cube: Cube):
             print(False)
 
 
-def test_firt_lvl(cube: Cube):
+def test_first_lvl(cube: Cube):
     down = [[34, 31, 28],
             [35, 32, 29],
             [36, 33, 30]
@@ -186,6 +186,27 @@ def test_firt_lvl(cube: Cube):
         cube.first_lvl()
         if cube.down != down:
             print(False)
+
+
+def test_second_lvl(cube: Cube):
+    for i in range(10000):
+        cube.shuffle()
+        # print(cube.up)
+        cube.second_lvl()
+        # print(cube.front)
+        # print(cube.left)
+        # print(cube.right)
+        if not cube.is_second_lvl():
+            print(cube.is_second_lvl())
+
+
+def test_figures_on_top(cube: Cube):
+    for i in range(10000):
+        cube.shuffle()
+        cube.figures_on_the_top()
+        if not cube.is_figures_on_the_top():
+            print(cube.up)
+
 
 def test():
     cube = Cube.Cube()
@@ -212,7 +233,11 @@ def test():
 
     # test_white_cross(cube)
 
-    test_firt_lvl(cube)
+    # test_first_lvl(cube)
+
+    # test_second_lvl(cube)
+
+    test_figures_on_top(cube)
 
     # self.front = [[37, 38, 39],
     #               [40, 41, 42],

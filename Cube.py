@@ -21,30 +21,21 @@ class Cube:
     def __init__(self):
         self.ideal_cube()
 
-    def is_ideal(self):
-        compare = Cube()
-        compare.ideal_cube()
-        if self.up == compare.up and self.down == compare.down and self.front == compare.front and \
-                self.back == compare.back and \
-                self.left == compare.left and self.right == compare.right:
-            return
-
     def solve_cube(self):
-        white_on_up = 0
-        white_num = [29, 31, 33, 35]
         compare = Cube()
 
         # white cross yellow center
-        if self.up == compare.up and self.down == compare.down and self.front == compare.front and \
-                self.back == compare.back and \
-                self.left == compare.left and self.right == compare.right:
+        if self.is_ideal():
             return
-        elif self.down == compare.down:
+        elif self.is_first_lvl():
             # solve if down already solved
             pass
+        elif self.is_white_cross_yellow_center():
+            self.white_cross(is_white_cross_yellow_center=True)
         else:
             self.white_cross_yellow_center()
             self.white_cross(is_white_cross_yellow_center=True)
+            self.first_lvl(is_all_steps_done=True)
 
     # Makes white cross on up plane
     def white_cross_yellow_center(self):
@@ -216,7 +207,6 @@ class Cube:
                             }
 
         def put_all_up_to_right_position():
-
             count = 0
             ind = [[0, 0], [0, 2], [2, 0], [2, 2]]
             for counter in range(4):
@@ -247,6 +237,157 @@ class Cube:
         put_all_up_to_right_position()
 
         # reset cube to solved one
+
+    def second_lvl(self, is_all_steps_before_done=False):
+        """
+        index_position[0]: position to start
+        index_position[1]: commands
+        index_position[3]: orientation
+        :param is_all_steps_before_done: If False will solve all previous steps
+        :return:
+        """
+        index_position = {
+            40: [[0, 1], [self.right_turn, self.left_turn], [True, True]],
+            6: [[1, 2], [self.left_turn, self.right_turn], [True, True]],
+            24: [[1, 0], [self.right_turn, self.left_turn], [True, False]],
+            42: [[0, 1], [self.left_turn, self.right_turn], [True, False]],
+            51: [[2, 1], [self.right_turn, self.left_turn], [False, False]],
+            22: [[1, 0], [self.left_turn, self.right_turn], [False, False]],
+            4: [[1, 2], [self.right_turn, self.left_turn], [False, True]],
+            49: [[2, 1], [self.left_turn, self.right_turn], [False, True]]
+        }
+
+        def put_all_from_top_to_second():
+            ind = [[0, 1], [0, 2], [2, 0], [2, 2]]
+            for counter in range(4):
+                for i, j in ind:
+                    shape = self.up[i][j]
+                    value = index_position.get(shape)
+                    if value:
+                        while self.up[value[0][0]][value[0][1]] != shape:
+                            self.turn_z_1_neg()
+                        orientation = value[2]
+                        for item in value[1]:
+                            item(x=bool(orientation[0]), y=bool(orientation[1]))
+                            break
+
+        def put_wrong_shapes_from_second_to_top():
+            if self.front[1][0] != 40 and index_position.get(self.front[1][0]):
+                self.right_turn(x=True, y=True)
+            if self.left[0][1] != 4 and index_position.get(self.left[0][1]):
+                self.right_turn(x=False, y=True)
+            if self.back[1][2] != 51 and index_position.get(self.back[1][2]):
+                self.right_turn(x=False, y=False)
+            if self.right[2][1] != 24 and index_position.get(self.right[2][1]):
+                self.right_turn(x=True, y=False)
+
+        if not is_all_steps_before_done:
+            self.first_lvl(is_all_steps_done=False)
+
+        while not self.is_second_lvl():
+            put_all_from_top_to_second()
+            put_wrong_shapes_from_second_to_top()
+
+    def figures_on_the_top(self, is_all_steps_before_done=False):
+        yellow = [11, 13, 15, 17]
+        indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
+
+        if not is_all_steps_before_done:
+            self.second_lvl(is_all_steps_before_done=False)
+
+        def cross():
+            for i, j in indexes:
+                if self.up[i][j] not in yellow:
+                    return False
+            return True
+
+        def stick():
+            opposit_indexes = [[[0, 1], [2, 1]], [[1, 0], [1, 2]]]
+            temp = opposit_indexes[0]
+            if self.up[temp[0][0]][temp[0][1]] in yellow and \
+                    self.up[temp[1][0]][temp[1][1]] in yellow:
+                self.turn_y_1_neg()
+                self.right_turn(x=True, y=True)
+                self.turn_y_1_pos()
+                return True
+            temp = opposit_indexes[1]
+            if self.up[temp[0][0]][temp[0][1]] in yellow and \
+                    self.up[temp[1][0]][temp[1][1]] in yellow:
+                self.turn_x_1_neg()
+                self.right_turn(x=True, y=False)
+                self.turn_x_1_pos()
+                return True
+            return False
+
+        def corner():
+            d = {
+                0: [self.turn_y_1_neg, self.turn_y_1_pos, [True, True]],
+                1: [self.turn_x_1_neg, self.turn_x_1_pos, [True, False]],
+                2: [self.turn_y_3_pos, self.turn_y_3_neg, [False, False]],
+                3: [self.turn_x_3_pos, self.turn_x_3_pos, [False, True]]
+            }
+            for i in range(4):
+                if self.up[indexes[i - 1][0]][indexes[i - 1][1]] is yellow and \
+                        self.up[indexes[i][0]][indexes[i - 1][1]] is yellow:
+                    command = d.get(i)
+                    command[0]()
+                    self.right_turn(x=command[2][0], y=command[2][1], n=2)
+                    command[1]()
+                    return True
+            return False
+
+        def point():
+            self.turn_x_1_neg()
+            self.right_turn(x=True, y=False, n=2)
+            self.turn_x_1_pos()
+            check = stick()
+            if not check:
+                corner()
+
+        if not cross():
+            if not stick():
+                if not corner():
+                    point()
+
+    def corners(self, is_all_steps_before_done=False):
+        if not is_all_steps_before_done:
+            self.figures_on_the_top(is_all_steps_before_done=False)
+
+        index_position = {
+            16: [[0, 0], [16, 1, 52]],
+            52: [[0, 0], [16, 1, 52]],
+            1: [[0, 0], [16, 1, 52]],
+            10: [[0, 2], [10, 25, 54]],
+            25: [[0, 2], [10, 25, 54]],
+            54: [[0, 2], [10, 25, 54]],
+            12: [[2, 2], [12, 27, 39]],
+            27: [[2, 2], [12, 27, 39]],
+            39: [[2, 2], [12, 27, 39]],
+            18: [[2, 0], [18, 3, 37]],
+            3: [[2, 0], [18, 3, 37]],
+            37: [[2, 0], [18, 3, 37]],
+        }
+
+        index = [[0, 0], [0, 2], [2, 2], [2, 0]]
+
+        def get_shape_to_pos(i, j):
+            pos = index_position.get(self.up[i][j])[0]
+            values = pos = index_position.get(self.up[i][j])[1]
+            while self.up[pos[0]][pos[1]] not in values:
+                self.turn_z_1_neg()
+
+        for i in range(4):
+            get_shape_to_pos(index[i][0], index[i][1])
+            temp = index_position.get(self.up[index[i][0]][index[i][1]])
+            n1 = index_position.get(self.up[index[(i+1)%4][0]][index[(i+1)%4][1]])
+            n2 = index_position.get(self.up[index[i-1][0]][index[i-1][1]])
+            if self.up[n1[0][0]][n1[0][1]] in n1[1] and \
+                    self.up[n2[0][0]][n2[0][1]] in n2[1]:
+                break
+            elif self.up[n1[0][0]][n1[0][1]] in n1[1] or \
+                    self.up[n2[0][0]][n2[0][1]] in n2[1]:
+                break
+            # дописать отдельно для каждого
 
     def ideal_cube(self):
         self.one_shape.clear()
@@ -880,6 +1021,33 @@ class Cube:
         :return:
         """
         return self.down[0][1] == 31 and self.down[1][2] == 29 and self.down[2][1] == 33 and self.down[1][0] == 35
+
+    def is_first_lvl(self):
+        down = [[34, 31, 28],
+                [35, 32, 29],
+                [36, 33, 30]
+                ]
+        return self.down == down
+
+    def is_second_lvl(self):
+        return self.is_first_lvl() and self.front[1] == [40, 41, 42] and \
+               self.back[1] == [49, 50, 51]
+
+    def is_ideal(self):
+        compare = Cube()
+        compare.ideal_cube()
+        a = self.up == compare.up and self.down == compare.down and self.front == compare.front and \
+            self.back == compare.back and \
+            self.left == compare.left and self.right == compare.right
+        return a
+
+    def is_figures_on_the_top(self):
+        yellow = [13, 11, 15, 17]
+        ind = [[1, 0], [2, 1], [1, 2], [0, 1]]
+        for i, j in ind:
+            if self.up[i][j] in yellow:
+                yellow.pop(yellow.index(self.up[i][j]))
+        return len(yellow) == 0
 
     def shuffle(self):
         self.commands_list = []
