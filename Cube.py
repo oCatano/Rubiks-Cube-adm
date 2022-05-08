@@ -1,4 +1,5 @@
 from Shapes import *
+from random import randrange
 
 """
 Возможные проблемы:
@@ -43,17 +44,22 @@ class Cube:
             pass
         else:
             self.white_cross_yellow_center()
-
-    def is_white_cross(self):
-        arr = [29, 31, 33, 35]
-        up_elem_indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
-        for i, j in up_elem_indexes:
-            if self.up[i][j] in arr:
-                arr.pop(arr.index(self.up[i][j]))
-        return not arr
+            self.white_cross(is_white_cross_yellow_center=True)
 
     # Makes white cross on up plane
     def white_cross_yellow_center(self):
+        for i in range(4):
+            if self.up[1][1] == 14:
+                break
+            self.turn_y_2_pos()
+
+        for i in range(4):
+            if self.up[1][1] == 14:
+                break
+            self.turn_x_2_pos()
+        while self.front[1][1] != 41:
+            self.turn_z_2_pos()
+
         white = [29, 31, 33, 35]
         white_num = [29, 31, 33, 35]
 
@@ -169,7 +175,79 @@ class Cube:
                                 self.turn_x_1_neg(2)
                                 break
 
-    # reset cube to solved one
+    # Makes full white cross
+    def white_cross(self, is_white_cross_yellow_center=False):
+        """
+
+        :param is_white_cross_yellow_center: False to make white cross yellow center
+        :return:
+        """
+        if not is_white_cross_yellow_center:
+            self.white_cross_yellow_center()
+
+        white_num = [29, 31, 33, 35]
+        white_num_pos = {29: [1, 0, self.turn_y_1_pos], 31: [0, 1, self.turn_x_3_pos],
+                         33: [2, 1, self.turn_x_1_pos], 35: [1, 2, self.turn_y_3_pos]}
+        for item in white_num:
+            i = white_num_pos[item]
+            while self.up[i[0]][i[1]] != item:
+                self.turn_z_1_neg()
+            i[2](2)
+
+    def first_lvl(self, is_all_steps_done=False):
+        if not is_all_steps_done:
+            self.white_cross(is_white_cross_yellow_center=False)
+        white = [28, 34, 30, 36]
+        """
+            indexes[0]: list of indexes on "up"
+            indexes[1]: list of indexes on "down"
+            indexes[2]: list of values un shape (white value always first)
+            indexes[3]: orientation fo right turn (x, y, z)
+        """
+        indexes_commands = {28: [[0, 0], [0, 2], [28, 46, 7], [False, True, True]],
+                            46: [[0, 0], [0, 2], [28, 46, 7], [False, True, True]],
+                            7: [[0, 0], [0, 2], [28, 46, 7], [False, True, True]],
+                            34: [[0, 2], [0, 0], [34, 19, 48], [False, False, True]],
+                            19: [[0, 2], [0, 0], [34, 19, 48], [False, False, True]],
+                            48: [[0, 2], [0, 0], [34, 19, 48], [False, False, True]],
+                            36: [[2, 2], [2, 0], [36, 45, 21], [True, False, True]],
+                            45: [[2, 2], [2, 0], [36, 45, 21], [True, False, True]],
+                            21: [[2, 2], [2, 0], [36, 45, 21], [True, False, True]],
+                            }
+
+        def put_all_up_to_right_position():
+
+            count = 0
+            ind = [[0, 0], [0, 2], [2, 0], [2, 2]]
+            for counter in range(4):
+                if count == 4:
+                    break
+                for i, j in ind:
+                    elem = indexes_commands.get(self.up[i][j])
+                    if elem:
+                        ind = elem[0]
+                        down_ind = elem[1]
+                        values = elem[2]
+                        orientation = elem[3]
+                        while self.up[ind[0]][ind[1]] not in values:
+                            self.turn_z_1_neg()
+                        while self.down[down_ind[0]][down_ind[1]] != values[0]:
+                            self.right_turn(x=bool(orientation[0]), y=bool(orientation[1]), z=bool(orientation[2]))
+                            count += 1
+                            break
+
+        put_all_up_to_right_position()
+        indexes_on_down = [[0, 0], [0, 2], [2, 0], [2, 2]]
+        for i, j in indexes_on_down:
+            temp = indexes_commands.get(self.down[i][j])
+            if temp:
+                if temp[2][0] != self.down[i][j]:
+                    self.right_turn(x=bool(temp[3][0]), y=bool(temp[3][1]), z=bool(temp[3][2]))
+
+        put_all_up_to_right_position()
+
+        # reset cube to solved one
+
     def ideal_cube(self):
         self.one_shape.clear()
         self.two_shapes.clear()
@@ -682,7 +760,7 @@ class Cube:
     # turn y_3 clockwise n times
     def turn_y_3_neg(self, n=1):
         for i in range(n):
-            self.turn_y_3_pos()
+            self.turn_y_3_pos(3)
 
     def right_turn(self, x=True, y=True, z=True, n=1):
         """
@@ -787,3 +865,34 @@ class Cube:
                     self.turn_z_3_pos()
                     self.turn_x_1_neg()
                     self.turn_z_3_neg()
+
+    def is_white_cross_yellow_center(self):
+        arr = [29, 31, 33, 35]
+        up_elem_indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
+        for i, j in up_elem_indexes:
+            if self.up[i][j] in arr:
+                arr.pop(arr.index(self.up[i][j]))
+        return not arr
+
+    def is_white_cross(self):
+        """
+        Check if cube has white cross
+        :return:
+        """
+        return self.down[0][1] == 31 and self.down[1][2] == 29 and self.down[2][1] == 33 and self.down[1][0] == 35
+
+    def shuffle(self):
+        self.commands_list = []
+        self.commands = [self.turn_z_1_neg, self.turn_z_1_pos, self.turn_z_2_pos,
+                         self.turn_z_2_neg, self.turn_z_3_pos, self.turn_z_3_neg,
+                         self.turn_x_1_neg, self.turn_x_1_pos, self.turn_x_2_pos,
+                         self.turn_x_2_neg, self.turn_x_3_pos, self.turn_x_3_neg,
+                         self.turn_y_1_neg, self.turn_y_1_pos, self.turn_y_2_pos,
+                         self.turn_y_2_neg, self.turn_y_3_pos, self.turn_y_3_neg
+                         ]
+
+        for i in range(len(self.commands)):
+            self.commands_list.append(randrange(len(self.commands)))
+        for i in range(len(self.commands_list)):
+            a = self.commands[i]
+            a()

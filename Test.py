@@ -1,5 +1,4 @@
 import Cube
-from random import randrange
 
 ideal_cube = Cube.Cube()
 
@@ -106,15 +105,16 @@ def test_white_cross_yellow_center_2(cube: Cube):
                     cube.turn_y_2_neg, cube.turn_y_3_pos, cube.turn_y_3_neg
                     ]
         for i in range(len(commands)):
-            a.append(randrange(len(commands)))
+            a.append(Cube.randrange(len(commands)))
             commands[a[i]]()
         return a
+
     cube.turn_y_1_pos()
     cube.turn_y_3_neg()
     cube.turn_x_3_neg()
-    #shuffle(cube)
-    # bug_combination = [14, 11, 4, 17, 15, 14, 5, 9, 11, 12, 7,
-    #                    7, 16, 12, 17, 4, 11, 17]
+    # shuffle(cube)
+    # bug_combination = [5, 1, 6, 15, 0, 5, 14, 2, 4, 3,
+    #                    3, 14, 4, 9, 17, 1, 1, 2]
     # commands = [cube.turn_z_1_neg, cube.turn_z_1_pos, cube.turn_z_2_pos,
     #             cube.turn_z_2_neg, cube.turn_z_3_pos, cube.turn_z_3_neg,
     #             cube.turn_x_1_neg, cube.turn_x_1_pos, cube.turn_x_2_pos,
@@ -124,6 +124,9 @@ def test_white_cross_yellow_center_2(cube: Cube):
     #             ]
     # for i in bug_combination:
     #     commands[i]()
+    # cube.white_cross_yellow_center()
+    # print(cube.up)
+    # print(is_white_cross(cube))
     # print()
     # print(cube.up)
     # print(cube.down)
@@ -137,20 +140,12 @@ def test_white_cross_yellow_center_2(cube: Cube):
     # print(cube.is_white_cross())
 
     count = 0
-    for i in range(100000):
-        #shuffle(cube)
-        # print(sh(cube))
-        # print()
-        # print(cube.up)
-        # print(cube.down)
-        # print(cube.front)
-        # print(cube.left)
-        # print(cube.back)
-        # print(cube.right)
-        # print()
+    for i in range(10000):
+        shuffle(cube)
+        cube.shuffle()
         cube.white_cross_yellow_center()
         if not is_white_cross(cube):
-            print(cube.up)
+            print(False)
             count += 1
     print(count)
 
@@ -164,9 +159,33 @@ def shuffle(cube: Cube):
                 cube.turn_y_2_neg, cube.turn_y_3_pos, cube.turn_y_3_neg
                 ]
     for i in range(len(commands)):
-        commands[randrange(len(commands))]()
+        commands[Cube.randrange(len(commands))]()
 
 
+def test_white_cross(cube: Cube):
+    # cube.shuffle()
+    # cube.white_cross_yellow_center()
+    # cube.white_cross()
+    # print(cube.front)
+    # print(cube.is_white_cross(is_white_cross_yellow_center=True))
+    for i in range(10000):
+        cube.shuffle()
+        cube.white_cross()
+        # print(cube.down)
+        if not cube.is_white_cross():
+            print(False)
+
+
+def test_firt_lvl(cube: Cube):
+    down = [[34, 31, 28],
+            [35, 32, 29],
+            [36, 33, 30]
+            ]
+    for i in range(10000):
+        cube.shuffle()
+        cube.first_lvl()
+        if cube.down != down:
+            print(False)
 
 def test():
     cube = Cube.Cube()
@@ -187,9 +206,13 @@ def test():
 
     # test_right_turn(cube)
 
-    #test_white_cross_yellow_center_1(cube)
+    # test_white_cross_yellow_center_1(cube)
 
-    test_white_cross_yellow_center_2(cube)
+    # test_white_cross_yellow_center_2(cube)
+
+    # test_white_cross(cube)
+
+    test_firt_lvl(cube)
 
     # self.front = [[37, 38, 39],
     #               [40, 41, 42],
