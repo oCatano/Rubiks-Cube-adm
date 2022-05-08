@@ -1,5 +1,10 @@
 from Shapes import *
 
+"""
+Возможные проблемы:
+1) Центр будет перевернут (отзеркаленный верх)
+"""
+
 
 class Cube:
     one_shape = []  # 6
@@ -14,6 +19,14 @@ class Cube:
 
     def __init__(self):
         self.ideal_cube()
+
+    def is_ideal(self):
+        compare = Cube()
+        compare.ideal_cube()
+        if self.up == compare.up and self.down == compare.down and self.front == compare.front and \
+                self.back == compare.back and \
+                self.left == compare.left and self.right == compare.right:
+            return
 
     def solve_cube(self):
         white_on_up = 0
@@ -31,79 +44,130 @@ class Cube:
         else:
             self.white_cross_yellow_center()
 
+    def is_white_cross(self):
+        arr = [29, 31, 33, 35]
+        up_elem_indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
+        for i, j in up_elem_indexes:
+            if self.up[i][j] in arr:
+                arr.pop(arr.index(self.up[i][j]))
+        return not arr
+
     # Makes white cross on up plane
     def white_cross_yellow_center(self):
-        down_elem_indexes = [[0, 1, self.turn_x_3_pos],
-                             [1, 2, self.turn_y_1_pos],
-                             [2, 1, self.turn_x_1_pos],
-                             [1, 0, self.turn_y_3_pos]
-                             ]
-        up_elem_indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
-
-        def checker(index_1, index_2):
-            check = False
-            if self.up[index_1][index_2] in white:
-                check = True
-            return check
-
-        def turn_up_till_right_clear():
-            while self.up[1][2] in white:
-                self.turn_z_1_neg()
-
-        def turn_up_till_left_clear():
-            while self.up[1][0] in white:
-                self.turn_z_1_neg()
-
         white = [29, 31, 33, 35]
         white_num = [29, 31, 33, 35]
 
-        count = 0
-
-        # check if all elements already on "up"
-        for i, j in up_elem_indexes:
-            if self.up[i][j] in white:
-                count += 1
-        if count == 4:
-            return
-
-        count = 0
-
-        # put all white shapes from "down" to the "up"
-        for i, j, command in down_elem_indexes:
-            if self.down[i][j] in white_num:
-                while checker(up_elem_indexes[count][0], up_elem_indexes[count][1]):
-                    self.turn_z_1_neg()
-                white_num.pop(white_num.index(self.down[i][j]))
-                command(2)
-            count += 1
-
-        # put all white shapes from "front" to the "up"
-        if white_num:
-            for i in range(4):
-                if self.front[1][2] in white_num:
-                    turn_up_till_right_clear()
-                    white_num.pop(white_num.index(self.front[1][2]))
-                    self.turn_y_3_pos()
-                if self.front[1][0] in white_num:
-                    turn_up_till_left_clear()
-                    white_num.pop(white_num.index(self.front[1][0]))
-                    self.turn_y_1_pos()
-
-                self.turn_z_2_pos()
-
-            for i in range(4):
-                self.turn_x_1_pos()
-                if self.front[1][2] in white_num:
-                    turn_up_till_right_clear()
-                    white_num.pop(white_num.index(self.front[1][2]))
-                    self.turn_y_3_pos()
-                if self.front[1][0] in white_num:
-                    turn_up_till_left_clear()
-                    white_num.pop(white_num.index(self.front[1][0]))
-                    self.turn_y_1_pos()
-                self.turn_x_1_neg()
+        def turn_till_clear_on_up(i, j):
+            while self.up[i][j] in white:
                 self.turn_z_1_neg()
-                self.turn_z_3_neg()
+
+        indexes = [[0, 1, False], [1, 0, True], [2, 1, False], [1, 2, True]]
+        for item in white_num:
+            if item not in [self.up[0][1], self.up[1][0], self.up[2][1], self.up[1][2]]:
+                for i, j, part in indexes:
+                    if self.front[i][j] == item:
+                        if part:
+                            if j == 0:
+                                turn_till_clear_on_up(1, 0)
+                                self.turn_y_1_pos()
+                                break
+                            elif j == 2:
+                                turn_till_clear_on_up(1, 2)
+                                self.turn_y_3_pos()
+                                break
+                        else:
+                            turn_till_clear_on_up(2, 1)
+                            self.turn_x_1_pos()
+                            if i == 0:
+                                turn_till_clear_on_up(1, 0)
+                                self.turn_y_1_pos()
+                                break
+                            elif i == 2:
+                                turn_till_clear_on_up(1, 2)
+                                self.turn_y_3_pos()
+                                break
+                    elif self.right[i][j] == item:
+                        if part:
+                            turn_till_clear_on_up(1, 2)
+                            self.turn_y_3_pos()
+                            if j == 0:
+                                turn_till_clear_on_up(0, 1)
+                                self.turn_x_3_pos()
+                                break
+                            elif j == 2:
+                                turn_till_clear_on_up(2, 1)
+                                self.turn_x_1_pos()
+                                break
+                        else:
+                            if i == 0:
+                                turn_till_clear_on_up(0, 1)
+                                self.turn_x_3_pos()
+                                break
+                            elif i == 2:
+                                turn_till_clear_on_up(2, 1)
+                                self.turn_x_1_pos()
+                                break
+                    elif self.back[i][j] == item:
+                        if part:
+                            if j == 0:
+                                turn_till_clear_on_up(1, 0)
+                                self.turn_y_1_neg()
+                                break
+                            elif j == 2:
+                                turn_till_clear_on_up(1, 2)
+                                self.turn_y_3_neg()
+                                break
+                        else:
+                            turn_till_clear_on_up(0, 1)
+                            self.turn_x_3_pos()
+                            if i == 0:
+                                turn_till_clear_on_up(1, 2)
+                                self.turn_y_3_neg()
+                                break
+                            elif i == 2:
+                                turn_till_clear_on_up(1, 0)
+                                self.turn_y_1_neg()
+                                break
+                    elif self.left[i][j] == item:
+                        if part:
+                            turn_till_clear_on_up(1, 0)
+                            self.turn_y_1_pos()
+                            if j == 0:
+                                turn_till_clear_on_up(2, 1)
+                                self.turn_x_1_neg()
+                                break
+                            elif j == 2:
+                                turn_till_clear_on_up(0, 1)
+                                self.turn_x_3_neg()
+                                break
+                        else:
+                            if i == 0:
+                                turn_till_clear_on_up(0, 1)
+                                self.turn_x_3_neg()
+                                break
+                            elif i == 2:
+                                turn_till_clear_on_up(2, 1)
+                                self.turn_x_1_neg()
+                                break
+                    elif self.down[i][j] == item:
+                        if part:
+                            if j == 0:
+                                turn_till_clear_on_up(1, 2)
+                                self.turn_y_3_pos(2)
+                                break
+                            elif j == 2:
+                                turn_till_clear_on_up(1, 0)
+                                self.turn_y_1_pos(2)
+                                break
+                        else:
+                            if i == 0:
+                                turn_till_clear_on_up(0, 1)
+                                self.turn_x_3_neg(2)
+                                break
+                            elif i == 2:
+                                turn_till_clear_on_up(2, 1)
+                                self.turn_x_1_neg(2)
+                                break
 
     # reset cube to solved one
     def ideal_cube(self):
