@@ -208,6 +208,30 @@ def test_figures_on_top(cube: Cube):
             print(cube.up)
 
 
+def test_corners(cube: Cube):
+    for i in range(10000):
+        cube.shuffle()
+        cube.corners()
+        # print(cube.up)
+        if not cube.is_corners():
+            print('No')
+
+
+def test_final(cube: Cube):
+    for i in range(10000):
+        cube.shuffle()
+        cube.final()
+        if not cube.is_ideal():
+            print('No')
+
+def test_solve_cube(cube: Cube):
+    for i in range(10000):
+        cube.shuffle()
+        cube.solve_cube()
+        if not cube.is_ideal():
+            print('No')
+
+
 def test():
     cube = Cube.Cube()
     cube.ideal_cube()
@@ -237,7 +261,13 @@ def test():
 
     # test_second_lvl(cube)
 
-    test_figures_on_top(cube)
+    # test_figures_on_top(cube)
+
+    # test_corners(cube)
+
+    # test_final(cube)
+
+    test_solve_cube(cube)
 
     # self.front = [[37, 38, 39],
     #               [40, 41, 42],

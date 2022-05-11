@@ -1,12 +1,6 @@
 from Shapes import *
 from random import randrange
 
-"""
-Возможные проблемы:
-1) Центр будет перевернут (отзеркаленный верх)
-"""
-
-
 class Cube:
     one_shape = []  # 6
     two_shapes = []  # 12
@@ -19,23 +13,41 @@ class Cube:
     left = [[], [], []]
 
     def __init__(self):
+        self.commands = None
+        self.commands_list = None
         self.ideal_cube()
 
     def solve_cube(self):
-        compare = Cube()
-
+        commands = [self.white_cross_yellow_center, self.white_cross,
+                    self.first_lvl, self.second_lvl,
+                    self.figures_on_the_top, self.corners,
+                    self.final
+                    ]
+        i = 10
         # white cross yellow center
         if self.is_ideal():
             return
+        elif self.is_corners():
+            i = 6
+        elif self.is_figures_on_the_top():
+            i = 5
+        elif self.is_second_lvl():
+            i = 4
         elif self.is_first_lvl():
-            # solve if down already solved
-            pass
+            i = 3
+        elif self.is_white_cross():
+            i = 2
         elif self.is_white_cross_yellow_center():
-            self.white_cross(is_white_cross_yellow_center=True)
+            i = 1
         else:
-            self.white_cross_yellow_center()
-            self.white_cross(is_white_cross_yellow_center=True)
-            self.first_lvl(is_all_steps_done=True)
+            i = 0
+        if i != 10:
+            if i == 0:
+                commands[i]()
+                i += 1
+            while i != 7:
+                commands[i](True)
+                i += 1
 
     # Makes white cross on up plane
     def white_cross_yellow_center(self):
@@ -169,7 +181,6 @@ class Cube:
     # Makes full white cross
     def white_cross(self, is_white_cross_yellow_center=False):
         """
-
         :param is_white_cross_yellow_center: False to make white cross yellow center
         :return:
         """
@@ -369,25 +380,75 @@ class Cube:
         }
 
         index = [[0, 0], [0, 2], [2, 2], [2, 0]]
+        orientation = [[True, False], [True, True], [False, True], [False, False]]
 
         def get_shape_to_pos(i, j):
             pos = index_position.get(self.up[i][j])[0]
-            values = pos = index_position.get(self.up[i][j])[1]
+            values = index_position.get(self.up[i][j])[1]
             while self.up[pos[0]][pos[1]] not in values:
                 self.turn_z_1_neg()
 
-        for i in range(4):
+        i = 0
+        while True:
             get_shape_to_pos(index[i][0], index[i][1])
             temp = index_position.get(self.up[index[i][0]][index[i][1]])
-            n1 = index_position.get(self.up[index[(i+1)%4][0]][index[(i+1)%4][1]])
-            n2 = index_position.get(self.up[index[i-1][0]][index[i-1][1]])
+            n1 = index_position.get(self.up[index[(i + 1) % 4][0]][index[(i + 1) % 4][1]])
+            n2 = index_position.get(self.up[index[i - 1][0]][index[i - 1][1]])
+            n3 = index_position.get(self.up[index[(i + 2) % 4][0]][index[(i + 2) % 4][1]])
             if self.up[n1[0][0]][n1[0][1]] in n1[1] and \
                     self.up[n2[0][0]][n2[0][1]] in n2[1]:
                 break
-            elif self.up[n1[0][0]][n1[0][1]] in n1[1] or \
-                    self.up[n2[0][0]][n2[0][1]] in n2[1]:
+            elif self.up[n1[0][0]][n1[0][1]] in n1[1]:
+                x_y = orientation[(i + 1) % 4]
+                self.right_turn(x=x_y[0], y=x_y[1], n=3)
+                self.left_turn(x=x_y[0], y=x_y[1], n=3)
                 break
-            # дописать отдельно для каждого
+            elif self.up[n2[0][0]][n2[0][1]] in n2[1]:
+                x_y = orientation[i % 4]
+                self.right_turn(x=x_y[0], y=x_y[1], n=3)
+                self.left_turn(x=x_y[0], y=x_y[1], n=3)
+                break
+            elif self.up[n3[0][0]][n3[0][1]] in n3[1]:
+                x_y = orientation[(i + 1) % 4]
+                self.right_turn(x=x_y[0], y=x_y[1], n=3)
+                self.left_turn(x=x_y[0], y=x_y[1], n=3)
+            i = (i + 1) % 4
+        k = 0
+        for i in index:
+            while self.up[i[0]][i[1]] != index_position.get(self.up[i[0]][i[1]])[1][0]:
+                self.right_turn(x=orientation[k][0], y=orientation[k][1], z=False)
+            k += 1
+
+    def final(self, is_all_steps_before_done=False):
+        if not is_all_steps_before_done:
+            self.corners(is_all_steps_before_done=False)
+
+        ind = [[0, 1], [1, 2], [2, 1], [1, 0]]
+        yellow_pos = {
+            13: [[0, 1], [False, True], [False, False]],
+            11: [[1, 2], [False, False], [True, False]],
+            15: [[2, 1], [True, False], [True, True]],
+            17: [[1, 0], [True, True], [False, True]]
+        }
+
+        def make_r_l_turns():
+            for i, j in ind:
+                if [i, j] == yellow_pos[self.up[i][j]][0]:
+                    orientation_1 = yellow_pos[self.up[i][j]][1]
+                    orientation_2 = yellow_pos[self.up[i][j]][2]
+                    self.right_turn(x=bool(orientation_1[0]), y=bool(orientation_1[1]))
+                    self.left_turn(x=bool(orientation_2[0]), y=bool(orientation_2[1]))
+                    break
+
+        checker = False
+        while not checker:
+            checker = True
+            for i, j in ind:
+                if [i, j] != yellow_pos[self.up[i][j]][0]:
+                    checker = False
+                    break
+            if not checker:
+                make_r_l_turns()
 
     def ideal_cube(self):
         self.one_shape.clear()
@@ -958,9 +1019,9 @@ class Cube:
     def left_turn(self, x=True, y=True, z=True, n=1):
         """
                 Над каким ребром будет совершаться правый поворот
-                :param x: первая ось (True - если вдоль оси ox False - против)
-                :param y: Вторая ось (True - если вдоль оси oy False - против)
-                :param z: ориентация кубика (True - если вдоль оси oz False - против)
+                :param x: first axis (True - along the axis ox False - against axis)
+                :param y: second axis (True - along the axis oy False - against axis)
+                :param z: cubes orientation (True - along the axis oz False - against axis)
                 :param n: number of right turns
                 """
         for i in range(n):
@@ -1048,6 +1109,14 @@ class Cube:
             if self.up[i][j] in yellow:
                 yellow.pop(yellow.index(self.up[i][j]))
         return len(yellow) == 0
+
+    def is_corners(self):
+        checker = True
+        index = [[0, 0], [0, 2], [2, 2], [2, 0]]
+        for i, j in index:
+            if self.up[i][j] not in [16, 10, 18, 12]:
+                checker = False
+        return checker
 
     def shuffle(self):
         self.commands_list = []
