@@ -257,7 +257,6 @@ def test_for_fun(cube: Cube):
 def test():
     cube = Cube.Cube()
     cube.ideal_cube()
-    cube.check_structure()
 
     # test_turn_z1(cube)
 
@@ -283,13 +282,13 @@ def test():
 
     # test_second_lvl(cube)
 
-    # test_figures_on_top(cube)
+    test_figures_on_top(cube)
 
-    # test_corners(cube)
+    test_corners(cube)
 
-    # test_final(cube)
+    test_final(cube)
 
-    # test_solve_cube(cube)
+    test_solve_cube(cube)
 
     test_for_fun(cube)
 

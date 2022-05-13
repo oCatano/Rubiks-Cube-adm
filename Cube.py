@@ -3,9 +3,6 @@ from random import randrange
 
 
 class Cube:
-    one_shape = []  # 6
-    two_shapes = []  # 12
-    three_shapes = []  # 8
     front = [[], [], []]
     back = [[], [], []]
     up = [[], [], []]
@@ -435,7 +432,6 @@ class Cube:
                 self.right_turn(x=True, y=True, z=False)
             self.turn_z_1_neg()
 
-
     def final(self, is_all_steps_before_done=False):
         if not is_all_steps_before_done:
             self.corners(is_all_steps_before_done=False)
@@ -477,67 +473,38 @@ class Cube:
                 make_r_l_turns()
 
     def ideal_cube(self):
-        self.one_shape.clear()
-        self.two_shapes.clear()
-        self.three_shapes.clear()
-        params = [[14, 'yellow'], [23, 'red'], [32, 'white'], [5, 'orange'],
-                  [41, 'blue'], [50, 'green']
-                  ]
-        for items in params:
-            self.one_shape.append(OneShape(items[0], items[1]))
-
-        params = [[11, 26, 'yellow', 'red'],
-                  [15, 38, 'yellow', 'blue'],
-                  [17, 2, 'yellow', 'orange'],
-                  [13, 53, 'yellow', 'green'],
-
-                  [40, 6, 'blue', 'orange'],
-                  [4, 49, 'orange', 'green'],
-                  [51, 22, 'green', 'red'],
-                  [24, 42, 'red', 'blue'],
-
-                  [44, 33, 'blue', 'white'],
-                  [8, 29, 'orange', 'white'],
-                  [47, 31, 'green', 'white'],
-                  [20, 35, 'red', 'white'],
-                  ]
-
-        for items in params:
-            self.two_shapes.append(TwoShapes(items[0], items[1], items[2], items[3]))
-
-        params = [[18, 3, 37, 'yellow', 'orange', 'blue'],
-                  [16, 52, 1, 'yellow', 'green', 'orange'],
-                  [10, 25, 54, 'yellow', 'red', 'green'],
-                  [12, 39, 27, 'yellow', 'blue', 'red'],
-
-                  [43, 9, 30, 'blue', 'orange', 'white'],
-                  [7, 46, 28, 'orange', 'green', 'white'],
-                  [48, 19, 34, 'green', 'red', 'white'],
-                  [21, 45, 36, 'red', 'blue', 'white'],
-                  ]
-
-        for items in params:
-            self.three_shapes.append(ThreeShapes(items[0], items[1], items[2], items[3], items[4], items[5]))
-
-        # self.up = [[self.__three(16),self.__two(13),self.__three(10)],
-        #            [self.__two(17), self.__one(14), self.__two(11)],
-        #            [self.__three(18),self.__two(15),self.__three(12)]
-        #            ]
+        # params = [[14, 'yellow'], [23, 'red'], [32, 'white'], [5, 'orange'],
+        #           [41, 'blue'], [50, 'green']
+        #           ]
         #
-        # self.front = [[self.__three(37), self.__two(38), self.__three(39)],
-        #               [self.__two(40), self.__one(41), self.__two(42)],
-        #               [self.__three(43), self.__two(44), self.__three(45)]
-        #               ]
+        # params = [[11, 26, 'yellow', 'red'],
+        #           [15, 38, 'yellow', 'blue'],
+        #           [17, 2, 'yellow', 'orange'],
+        #           [13, 53, 'yellow', 'green'],
         #
-        # self.down = [[self.__three(34), self.__two(31), self.__three(28)],
-        #            [self.__two(25), self.__one(32), self.__two(29)],
-        #            [self.__three(36), self.__two(33), self.__three(30)]
-        #            ]
+        #           [40, 6, 'blue', 'orange'],
+        #           [4, 49, 'orange', 'green'],
+        #           [51, 22, 'green', 'red'],
+        #           [24, 42, 'red', 'blue'],
         #
-        # self.back = [[self.__three(46),self.__two(47),self.__three(48)],
-        #            [self.__two(49), self.__one(50), self.__two(51)],
-        #            [self.__three(52),self.__two(53),self.__three(54)]
-        #         ]
+        #           [44, 33, 'blue', 'white'],
+        #           [8, 29, 'orange', 'white'],
+        #           [47, 31, 'green', 'white'],
+        #           [20, 35, 'red', 'white'],
+        #           ]
+
+
+        # params = [[18, 3, 37, 'yellow', 'orange', 'blue'],
+        #           [16, 52, 1, 'yellow', 'green', 'orange'],
+        #           [10, 25, 54, 'yellow', 'red', 'green'],
+        #           [12, 39, 27, 'yellow', 'blue', 'red'],
+        #
+        #           [43, 9, 30, 'blue', 'orange', 'white'],
+        #           [7, 46, 28, 'orange', 'green', 'white'],
+        #           [48, 19, 34, 'green', 'red', 'white'],
+        #           [21, 45, 36, 'red', 'blue', 'white'],
+        #           ]
+
         self.up = [[16, 13, 10],
                    [17, 14, 11],
                    [18, 15, 12]
@@ -568,79 +535,12 @@ class Cube:
                       [27, 24, 21]
                       ]
 
-    def __one(self, number):
-        for item in self.one_shape:
-            if item.number_1 == number:
-                return item
-        return False
-
-    def __two(self, number):
-        for item in self.two_shapes:
-            if item.number_1 == number or item.number_2 == number:
-                return item
-        return False
-
-    def __three(self, number):
-        for item in self.three_shapes:
-            if item.number_1 == number or item.number_2 == number or item.number_3 == number:
-                return item
-        return False
-
     # returns new object of one plane (list of 3 lists)
     def __copy_part(self, a):
         temp = []
         for item in a:
             temp.append(item.copy())
         return temp
-
-    # check is it all 54 unique number
-    def check_structure(self):
-        array = []
-        for items in self.one_shape:
-            array.append(items.number_1)
-
-        for items in self.two_shapes:
-            array.append(items.number_1)
-            array.append(items.number_2)
-
-        for items in self.three_shapes:
-            array.append(items.number_1)
-            array.append(items.number_2)
-            array.append(items.number_3)
-
-        array.sort()
-        for i in range(1, 55):
-            if i != array[i - 1]:
-                return False
-
-        array.clear()
-        for i in range(3):
-            for j in range(3):
-                array.append(self.up[i][j])
-                array.append(self.down[i][j])
-                array.append(self.front[i][j])
-                array.append(self.back[i][j])
-                array.append(self.left[i][j])
-                array.append(self.right[i][j])
-
-        array.sort()
-        for i in range(1, 55):
-            if i != array[i - 1]:
-                return False
-
-    def __get_shape(self, number):
-        for item in self.one_shape:
-            if item.number_1 == number:
-                return item
-
-        for item in self.two_shapes:
-            if item.number_1 == number or item.number_2 == number:
-                return item
-
-        for item in self.three_shapes:
-            if item.number_1 == number or item.number_2 == number or item.number_3 == number:
-                return item
-        return False
 
     # turn cube on z_1 clockwise n times
     def turn_z_1_neg(self, n=1):
