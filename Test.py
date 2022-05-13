@@ -224,12 +224,34 @@ def test_final(cube: Cube):
         if not cube.is_ideal():
             print('No')
 
+
 def test_solve_cube(cube: Cube):
     for i in range(10000):
         cube.shuffle()
         cube.solve_cube()
         if not cube.is_ideal():
             print('No')
+
+
+def test_for_fun(cube: Cube):
+    cube.turn_z_1_neg()
+    cube.solve_cube()
+    print(cube.is_ideal())
+    cube.turn_z_2_pos()
+    cube.turn_x_2_neg()
+    cube.turn_z_2_neg()
+    cube.turn_x_2_pos()
+    cube.solve_cube()
+    print(cube.is_ideal())
+
+    cube.right_turn()
+    cube.left_turn()
+    cube.solve_cube()
+    print(cube.is_ideal())
+
+    cube.right_turn(False,False,False)
+    cube.solve_cube()
+    print(cube.is_ideal())
 
 
 def test():
@@ -267,7 +289,9 @@ def test():
 
     # test_final(cube)
 
-    test_solve_cube(cube)
+    # test_solve_cube(cube)
+
+    test_for_fun(cube)
 
     # self.front = [[37, 38, 39],
     #               [40, 41, 42],

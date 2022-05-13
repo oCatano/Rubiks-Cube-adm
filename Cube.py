@@ -1,6 +1,7 @@
 from Shapes import *
 from random import randrange
 
+
 class Cube:
     one_shape = []  # 6
     two_shapes = []  # 12
@@ -18,6 +19,7 @@ class Cube:
         self.ideal_cube()
 
     def solve_cube(self):
+        self.center_normalize()
         commands = [self.white_cross_yellow_center, self.white_cross,
                     self.first_lvl, self.second_lvl,
                     self.figures_on_the_top, self.corners,
@@ -49,19 +51,27 @@ class Cube:
                 commands[i](True)
                 i += 1
 
+    def center_normalize(self):
+        if self.up[1][1] == 14 and self.down[1][1] == 32 and \
+                self.front[1][1] == 41 and self.back == 50:
+            return
+        else:
+            for i in range(4):
+                if self.up[1][1] == 14:
+                    break
+                self.turn_y_2_pos()
+
+            for i in range(4):
+                if self.up[1][1] == 14:
+                    break
+                self.turn_x_2_pos()
+            while self.front[1][1] != 41:
+                self.turn_z_2_pos()
+
     # Makes white cross on up plane
     def white_cross_yellow_center(self):
-        for i in range(4):
-            if self.up[1][1] == 14:
-                break
-            self.turn_y_2_pos()
 
-        for i in range(4):
-            if self.up[1][1] == 14:
-                break
-            self.turn_x_2_pos()
-        while self.front[1][1] != 41:
-            self.turn_z_2_pos()
+        self.center_normalize()
 
         white = [29, 31, 33, 35]
         white_num = [29, 31, 33, 35]
@@ -215,6 +225,9 @@ class Cube:
                             36: [[2, 2], [2, 0], [36, 45, 21], [True, False, True]],
                             45: [[2, 2], [2, 0], [36, 45, 21], [True, False, True]],
                             21: [[2, 2], [2, 0], [36, 45, 21], [True, False, True]],
+                            30: [[2, 0], [2, 2], [30, 9, 43], [True, True, True]],
+                            9: [[2, 0], [2, 2], [30, 9, 43], [True, True, True]],
+                            43: [[2, 0], [2, 2], [30, 9, 43], [True, True, True]]
                             }
 
         def put_all_up_to_right_position():
@@ -226,16 +239,16 @@ class Cube:
                 for i, j in ind:
                     elem = indexes_commands.get(self.up[i][j])
                     if elem:
-                        ind = elem[0]
+                        indexes = elem[0]
                         down_ind = elem[1]
                         values = elem[2]
                         orientation = elem[3]
-                        while self.up[ind[0]][ind[1]] not in values:
+                        while self.up[indexes[0]][indexes[1]] not in values:
                             self.turn_z_1_neg()
                         while self.down[down_ind[0]][down_ind[1]] != values[0]:
                             self.right_turn(x=bool(orientation[0]), y=bool(orientation[1]), z=bool(orientation[2]))
-                            count += 1
-                            break
+                        count += 1
+                        break
 
         put_all_up_to_right_position()
         indexes_on_down = [[0, 0], [0, 2], [2, 0], [2, 2]]
@@ -269,7 +282,7 @@ class Cube:
         }
 
         def put_all_from_top_to_second():
-            ind = [[0, 1], [0, 2], [2, 0], [2, 2]]
+            ind = [[0, 1], [1, 0], [2, 1], [1, 2]]
             for counter in range(4):
                 for i, j in ind:
                     shape = self.up[i][j]
@@ -280,7 +293,7 @@ class Cube:
                         orientation = value[2]
                         for item in value[1]:
                             item(x=bool(orientation[0]), y=bool(orientation[1]))
-                            break
+                        break
 
         def put_wrong_shapes_from_second_to_top():
             if self.front[1][0] != 40 and index_position.get(self.front[1][0]):
@@ -338,8 +351,8 @@ class Cube:
                 3: [self.turn_x_3_pos, self.turn_x_3_pos, [False, True]]
             }
             for i in range(4):
-                if self.up[indexes[i - 1][0]][indexes[i - 1][1]] is yellow and \
-                        self.up[indexes[i][0]][indexes[i - 1][1]] is yellow:
+                if self.up[indexes[i - 1][0]][indexes[i - 1][1]] in yellow and \
+                        self.up[indexes[i][0]][indexes[i][1]] in yellow:
                     command = d.get(i)
                     command[0]()
                     self.right_turn(x=command[2][0], y=command[2][1], n=2)
@@ -390,8 +403,12 @@ class Cube:
 
         i = 0
         while True:
+            temp = self.up[index[i][0]][index[i][1]]
             get_shape_to_pos(index[i][0], index[i][1])
-            temp = index_position.get(self.up[index[i][0]][index[i][1]])
+            for k in range(4):
+                if self.up[index[k][0]][index[k][1]] == temp:
+                    i = k
+                    break
             n1 = index_position.get(self.up[index[(i + 1) % 4][0]][index[(i + 1) % 4][1]])
             n2 = index_position.get(self.up[index[i - 1][0]][index[i - 1][1]])
             n3 = index_position.get(self.up[index[(i + 2) % 4][0]][index[(i + 2) % 4][1]])
@@ -413,11 +430,11 @@ class Cube:
                 self.right_turn(x=x_y[0], y=x_y[1], n=3)
                 self.left_turn(x=x_y[0], y=x_y[1], n=3)
             i = (i + 1) % 4
-        k = 0
-        for i in index:
-            while self.up[i[0]][i[1]] != index_position.get(self.up[i[0]][i[1]])[1][0]:
-                self.right_turn(x=orientation[k][0], y=orientation[k][1], z=False)
-            k += 1
+        for i in range(4):
+            while self.up[2][0] not in [18, 12, 10, 16]:
+                self.right_turn(x=True, y=True, z=False)
+            self.turn_z_1_neg()
+
 
     def final(self, is_all_steps_before_done=False):
         if not is_all_steps_before_done:
@@ -438,7 +455,16 @@ class Cube:
                     orientation_2 = yellow_pos[self.up[i][j]][2]
                     self.right_turn(x=bool(orientation_1[0]), y=bool(orientation_1[1]))
                     self.left_turn(x=bool(orientation_2[0]), y=bool(orientation_2[1]))
+                    self.right_turn(x=bool(orientation_1[0]), y=bool(orientation_1[1]), n=5)
+                    self.left_turn(x=bool(orientation_2[0]), y=bool(orientation_2[1]), n=5)
                     break
+            self.right_turn(x=True, y=False)
+            self.left_turn(x=True, y=True)
+            self.right_turn(x=True, y=False, n=5)
+            self.left_turn(x=True, y=True, n=5)
+
+        while self.up[0][0] != 16:
+            self.turn_z_1_neg()
 
         checker = False
         while not checker:
@@ -980,14 +1006,14 @@ class Cube:
                     self.turn_y_1_pos()
                     self.turn_z_1_pos()
                 elif (not x) & (not y):
-                    self.turn_x_3_neg()
-                    self.turn_z_1_neg()
                     self.turn_x_3_pos()
+                    self.turn_z_1_neg()
+                    self.turn_x_3_neg()
                     self.turn_z_1_pos()
                 elif x & (not y):
-                    self.turn_y_3_neg()
-                    self.turn_z_1_neg()
                     self.turn_y_3_pos()
+                    self.turn_z_1_neg()
+                    self.turn_y_3_neg()
                     self.turn_z_1_pos()
                 elif x & y:
                     self.turn_x_1_neg()
@@ -997,24 +1023,24 @@ class Cube:
             else:
                 if x & (not y):
                     self.turn_x_1_neg()
-                    self.turn_z_3_neg()
-                    self.turn_x_1_pos()
                     self.turn_z_3_pos()
+                    self.turn_x_1_pos()
+                    self.turn_z_3_neg()
                 elif x & y:
                     self.turn_y_1_neg()
-                    self.turn_z_3_neg()
-                    self.turn_y_1_pos()
                     self.turn_z_3_pos()
-                elif (not x) & y:
-                    self.turn_x_3_neg()
+                    self.turn_y_1_pos()
                     self.turn_z_3_neg()
+                elif (not x) & y:
                     self.turn_x_3_pos()
                     self.turn_z_3_pos()
-                elif (not x) & (not y):
-                    self.turn_y_3_neg()
+                    self.turn_x_3_neg()
                     self.turn_z_3_neg()
+                elif (not x) & (not y):
                     self.turn_y_3_pos()
                     self.turn_z_3_pos()
+                    self.turn_y_3_neg()
+                    self.turn_z_3_neg()
 
     def left_turn(self, x=True, y=True, z=True, n=1):
         """
@@ -1037,36 +1063,36 @@ class Cube:
                     self.turn_y_1_neg()
                     self.turn_z_1_neg()
                 elif (not x) & y:
-                    self.turn_x_3_pos()
-                    self.turn_z_1_pos()
                     self.turn_x_3_neg()
+                    self.turn_z_1_pos()
+                    self.turn_x_3_pos()
                     self.turn_z_1_neg()
                 elif (not x) & (not y):
-                    self.turn_y_3_pos()
-                    self.turn_z_1_pos()
                     self.turn_y_3_neg()
+                    self.turn_z_1_pos()
+                    self.turn_y_3_pos()
                     self.turn_z_1_neg()
             else:
                 if (not x) & y:
                     self.turn_y_1_pos()
-                    self.turn_z_3_pos()
-                    self.turn_y_1_neg()
                     self.turn_z_1_neg()
-                elif (not x) & (not y):
-                    self.turn_x_3_pos()
+                    self.turn_y_1_neg()
                     self.turn_z_3_pos()
+                elif (not x) & (not y):
                     self.turn_x_3_neg()
                     self.turn_z_3_neg()
-                elif x & (not y):
-                    self.turn_y_3_pos()
+                    self.turn_x_3_pos()
                     self.turn_z_3_pos()
+                elif x & (not y):
                     self.turn_y_3_neg()
                     self.turn_z_3_neg()
+                    self.turn_y_3_pos()
+                    self.turn_z_3_pos()
                 elif x & y:
                     self.turn_x_1_pos()
-                    self.turn_z_3_pos()
-                    self.turn_x_1_neg()
                     self.turn_z_3_neg()
+                    self.turn_x_1_neg()
+                    self.turn_z_3_pos()
 
     def is_white_cross_yellow_center(self):
         arr = [29, 31, 33, 35]
@@ -1108,7 +1134,7 @@ class Cube:
         for i, j in ind:
             if self.up[i][j] in yellow:
                 yellow.pop(yellow.index(self.up[i][j]))
-        return len(yellow) == 0
+        return len(yellow) == 0 and self.is_second_lvl()
 
     def is_corners(self):
         checker = True
@@ -1116,7 +1142,7 @@ class Cube:
         for i, j in index:
             if self.up[i][j] not in [16, 10, 18, 12]:
                 checker = False
-        return checker
+        return checker and self.is_figures_on_the_top()
 
     def shuffle(self):
         self.commands_list = []
