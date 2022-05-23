@@ -257,6 +257,8 @@ def test_for_fun(cube: Cube):
 def test():
     cube = Cube.Cube()
     cube.ideal_cube()
+    cube.turn_x_3_pos()
+    cube.solve_cube()
 
     # test_turn_z1(cube)
 
@@ -282,15 +284,19 @@ def test():
 
     # test_second_lvl(cube)
 
-    test_figures_on_top(cube)
+    # test_figures_on_top(cube)
 
-    test_corners(cube)
+    # test_corners(cube)
 
-    test_final(cube)
+    # test_final(cube)
 
-    test_solve_cube(cube)
+    # test_solve_cube(cube)
 
-    test_for_fun(cube)
+    # test_for_fun(cube)
+    print(cube.up)
+    print(cube.down)
+    print(cube.front)
+    print(cube.back)
 
     # self.front = [[37, 38, 39],
     #               [40, 41, 42],

@@ -14,8 +14,10 @@ class Cube:
         self.commands = None
         self.commands_list = None
         self.ideal_cube()
+        self.solve_commands = []
 
     def solve_cube(self):
+        self.solve_commands = []
         self.center_normalize()
         commands = [self.white_cross_yellow_center, self.white_cross,
                     self.first_lvl, self.second_lvl,
@@ -47,6 +49,7 @@ class Cube:
             while i != 7:
                 commands[i](True)
                 i += 1
+        return self.solve_commands
 
     def center_normalize(self):
         if self.up[1][1] == 14 and self.down[1][1] == 32 and \
@@ -292,15 +295,25 @@ class Cube:
                             item(x=bool(orientation[0]), y=bool(orientation[1]))
                         break
 
+
         def put_wrong_shapes_from_second_to_top():
             if self.front[1][0] != 40 and index_position.get(self.front[1][0]):
                 self.right_turn(x=True, y=True)
+                self.left_turn(x=True, y=True)
+                put_all_from_top_to_second()
             if self.left[0][1] != 4 and index_position.get(self.left[0][1]):
                 self.right_turn(x=False, y=True)
+                self.left_turn(x=False, y=True)
+                put_all_from_top_to_second()
             if self.back[1][2] != 51 and index_position.get(self.back[1][2]):
                 self.right_turn(x=False, y=False)
+                self.left_turn(x=False, y=False)
+                put_all_from_top_to_second()
             if self.right[2][1] != 24 and index_position.get(self.right[2][1]):
                 self.right_turn(x=True, y=False)
+                self.left_turn(x=True, y=False)
+                put_all_from_top_to_second()
+
 
         if not is_all_steps_before_done:
             self.first_lvl(is_all_steps_done=False)
@@ -345,8 +358,9 @@ class Cube:
                 0: [self.turn_y_1_neg, self.turn_y_1_pos, [True, True]],
                 1: [self.turn_x_1_neg, self.turn_x_1_pos, [True, False]],
                 2: [self.turn_y_3_pos, self.turn_y_3_neg, [False, False]],
-                3: [self.turn_x_3_pos, self.turn_x_3_pos, [False, True]]
+                3: [self.turn_x_3_pos, self.turn_x_3_neg, [False, True]]
             }
+            # indexes = [[0, 1], [1, 0], [2, 1], [1, 2]]
             for i in range(4):
                 if self.up[indexes[i - 1][0]][indexes[i - 1][1]] in yellow and \
                         self.up[indexes[i][0]][indexes[i][1]] in yellow:
@@ -543,8 +557,10 @@ class Cube:
         return temp
 
     # turn cube on z_1 clockwise n times
-    def turn_z_1_neg(self, n=1):
+    def turn_z_1_neg(self, n=1, is_pos=True):
         for i in range(n):
+            if is_pos:
+                self.solve_commands.append(['U', 1])
             temp = self.__copy_part(self.up)
 
             # spin up plane
@@ -586,7 +602,8 @@ class Cube:
     # turn cube on z_1 clockwise n times
     def turn_z_1_pos(self, n=1):
         for i in range(n):
-            self.turn_z_1_neg(3)
+            self.solve_commands.append(['U', -1])
+            self.turn_z_1_neg(3, is_pos=False)
 
     # turn cube on z_1 clockwise n times
     def turn_z_2_pos(self, n=1):
@@ -622,8 +639,10 @@ class Cube:
             self.turn_z_2_pos(3)
 
     # turn cube on z_3 clockwise n times
-    def turn_z_3_pos(self, n=1):
+    def turn_z_3_pos(self, n=1, is_pos=True):
         for i in range(n):
+            if is_pos:
+                self.solve_commands.append(['D', 1])
             front = self.__copy_part(self.front)
             back = self.__copy_part(self.back)
             left = self.__copy_part(self.left)
@@ -664,11 +683,14 @@ class Cube:
     # turn cube on z_3 counterclockwise n times
     def turn_z_3_neg(self, n=1):
         for i in range(n):
-            self.turn_z_3_pos(3)
+            self.solve_commands.append(['D', -1])
+            self.turn_z_3_pos(3, is_pos=False)
 
     # turn x_1 counterclockwise n times
-    def turn_x_1_pos(self, n=1):
+    def turn_x_1_pos(self, n=1, is_pos=True):
         for i in range(n):
+            if is_pos:
+                self.solve_commands.append(['F', -1])
             front = self.__copy_part(self.front)
             up = self.__copy_part(self.up)
             left = self.__copy_part(self.left)
@@ -703,7 +725,8 @@ class Cube:
     # turn x_1 clockwise n times
     def turn_x_1_neg(self, n=1):
         for i in range(n):
-            self.turn_x_1_pos(3)
+            self.solve_commands.append(['F', 1])
+            self.turn_x_1_pos(3, is_pos=False)
 
     # turn x_2 counterclockwise n times
     def turn_x_2_pos(self, n=1):
@@ -731,8 +754,10 @@ class Cube:
             self.turn_x_2_pos(3)
 
     # turn x_3 counterclockwise n times
-    def turn_x_3_pos(self, n=1):
+    def turn_x_3_pos(self, n=1, is_pos=True):
         for i in range(n):
+            if is_pos:
+                self.solve_commands.append(['B', 1])
             back = self.__copy_part(self.back)
             up = self.__copy_part(self.up)
             left = self.__copy_part(self.left)
@@ -765,11 +790,14 @@ class Cube:
     # turn x_3 clockwise n times
     def turn_x_3_neg(self, n=1):
         for i in range(n):
-            self.turn_x_3_pos(3)
+            self.solve_commands.append(['B', -1])
+            self.turn_x_3_pos(3,is_pos=False)
 
     # turn y_1 counterclockwise n times
-    def turn_y_1_pos(self, n=1):
+    def turn_y_1_pos(self, n=1, is_pos=True):
         for i in range(n):
+            if is_pos:
+                self.solve_commands.append(['L', -1])
             front = self.__copy_part(self.front)
             up = self.__copy_part(self.up)
             left = self.__copy_part(self.left)
@@ -810,7 +838,8 @@ class Cube:
     # turn y_1 clockwise n times
     def turn_y_1_neg(self, n=1):
         for i in range(n):
-            self.turn_y_1_pos(3)
+            self.solve_commands.append(['L', 1])
+            self.turn_y_1_pos(3, is_pos=False)
 
     # turn y_2 counterclockwise n times
     def turn_y_2_pos(self, n=1):
@@ -846,8 +875,10 @@ class Cube:
             self.turn_y_2_pos(3)
 
     # turn y_3 counterclockwise n times
-    def turn_y_3_pos(self, n=1):
+    def turn_y_3_pos(self, n=1, is_pos=True):
         for i in range(n):
+            if is_pos:
+                self.solve_commands.append(['R', 1])
             front = self.__copy_part(self.front)
             up = self.__copy_part(self.up)
             right = self.__copy_part(self.right)
@@ -888,7 +919,8 @@ class Cube:
     # turn y_3 clockwise n times
     def turn_y_3_neg(self, n=1):
         for i in range(n):
-            self.turn_y_3_pos(3)
+            self.solve_commands.append(['R', -1])
+            self.turn_y_3_pos(3, is_pos=False)
 
     def right_turn(self, x=True, y=True, z=True, n=1):
         """
