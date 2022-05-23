@@ -408,40 +408,28 @@ class InteractiveCube(plt.Axes):
 
             if event.key.upper() == 'B' and direction == 1:
                 self.Logical_Cube.turn_x_3_pos()
-                print(1)
             elif event.key.upper() == 'B' and direction == -1:
                 self.Logical_Cube.turn_x_3_neg()
-                print(2)
             elif event.key.upper() == 'F' and direction == 1:
                 self.Logical_Cube.turn_x_1_neg()
-                print(3)
             elif event.key.upper() == 'F' and direction == -1:
                 self.Logical_Cube.turn_x_1_pos()
-                print(4)
             elif event.key.upper() == 'U' and direction == 1:
                 self.Logical_Cube.turn_z_1_neg()
-                print(5)
             elif event.key.upper() == 'U' and direction == -1:
                 self.Logical_Cube.turn_z_1_pos()
-                print(6)
             elif event.key.upper() == 'D' and direction == 1:
                 self.Logical_Cube.turn_z_3_pos()
-                print(7)
             elif event.key.upper() == 'D' and direction == -1:
                 self.Logical_Cube.turn_z_3_neg()
-                print(8)
             elif event.key.upper() == 'R' and direction == 1:
                 self.Logical_Cube.turn_y_3_pos()
-                print(9)
             elif event.key.upper() == 'R' and direction == -1:
                 self.Logical_Cube.turn_y_3_neg()
-                print(10)
             elif event.key.upper() == 'L' and direction == 1:
                 self.Logical_Cube.turn_y_1_neg()
-                print(11)
             elif event.key.upper() == 'L' and direction == -1:
                 self.Logical_Cube.turn_y_1_pos()
-                print(12)
 
             if np.any(self._digit_flags[:N]):
                 for d in np.arange(N)[self._digit_flags[:N]]:
