@@ -11,7 +11,6 @@ from matplotlib import widgets
 import Test
 from projection import Quaternion, project_points
 from Cube import Cube as logic_of_Cube
-from  time import sleep
 
 """
 Sticker representation
@@ -368,8 +367,6 @@ class InteractiveCube(plt.Axes):
             for i, j in commands:
                 self.rotate_face(i, j)
 
-
-
     def _key_press(self, event):
         """Handler for key press events"""
         if event.key == 'shift':
@@ -444,6 +441,7 @@ class InteractiveCube(plt.Axes):
             self._shift = False
         elif event.key.isdigit():
             self._digit_flags[int(event.key)] = 0
+
     def _mouse_press(self, event):
         """Handler for mouse button press"""
         self._event_xy = (event.x, event.y)
@@ -516,4 +514,4 @@ if __name__ == '__main__':
     # cube.turn_z_1_pos()
     # cube.solve_cube()
     # print(cube.solve_commands)
-    #Test.test()
+    # Test.test()

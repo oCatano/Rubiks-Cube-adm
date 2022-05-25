@@ -1,4 +1,3 @@
-from Shapes import *
 from random import randrange
 
 
